@@ -1,13 +1,18 @@
+
 <?php
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+// ==========================================
+// 1. CONFIGURACIÓN DE RUTA DEL PROYECTO
+// ==========================================
 
-// Obtener la ruta principal del proyecto
 function appBasePath(): string {
 
-    $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+    $script = str_replace(
+        '\\',
+        '/',
+        $_SERVER['SCRIPT_NAME'] ?? ''
+    );
+
     $base = rtrim(dirname($script), '/');
 
     $carpetas = [
@@ -20,41 +25,155 @@ function appBasePath(): string {
     ];
 
     if (in_array(basename($base), $carpetas, true)) {
+
         $base = rtrim(dirname($base), '/');
     }
 
     return ($base === '/' || $base === '.') ? '' : $base;
 }
 
-// Generar rutas del proyecto
+// ==========================================
+// 2. GENERAR RUTAS DEL SISTEMA
+// ==========================================
+
 function appUrl(string $ruta = ''): string {
+
     return appBasePath() . '/' . ltrim($ruta, '/');
 }
 
-// Verificar inicio de sesión
-function requireLogin(): void {
+// ==========================================
+// 3. CONFIGURACIÓN SEGURA DE SESIÓN
+// ==========================================
 
-    if (empty($_SESSION['usuario']['id_usuario'])) {
-        header('Location: ' . appUrl('login.php'));
-        exit;
-    }
+if (session_status() === PHP_SESSION_NONE) {
+
+    // Detectar si la conexión utiliza HTTPS
+    $esHttps = (
+        isset($_SERVER['HTTPS']) &&
+        $_SERVER['HTTPS'] !== '' &&
+        strtolower((string)$_SERVER['HTTPS']) !== 'off'
+    );
+
+    // Evitar reutilización de identificadores de sesión
+    ini_set('session.use_strict_mode', '1');
+
+    // Utilizar exclusivamente cookies
+    ini_set('session.use_only_cookies', '1');
+
+    // Deshabilitar sesiones transmitidas por URL
+    ini_set('session.use_trans_sid', '0');
+
+    // Protección de cookies
+    ini_set('session.cookie_httponly', '1');
+
+    ini_set(
+        'session.cookie_secure',
+        $esHttps ? '1' : '0'
+    );
+
+    ini_set('session.cookie_samesite', 'Lax');
+
+    // Tiempo máximo de almacenamiento de sesión
+    ini_set('session.gc_maxlifetime', '1800');
+
+    // Configurar parámetros de la cookie
+    session_set_cookie_params([
+
+        'lifetime' => 0,
+
+        'path' => appBasePath() . '/',
+
+        'secure' => $esHttps,
+
+        'httponly' => true,
+
+        'samesite' => 'Lax'
+
+    ]);
+
+    // Iniciar sesión
+    session_start();
 }
 
-// Verificar permisos
+// ==========================================
+// 4. VERIFICAR INICIO DE SESIÓN
+// ==========================================
+
+function requireLogin(): void {
+
+    $usuario = $_SESSION['usuario'] ?? null;
+
+    $idUsuario = is_array($usuario)
+        ? ($usuario['id_usuario'] ?? null)
+        : null;
+
+    // Validar que exista un identificador válido
+    $idValido = filter_var(
+        $idUsuario,
+        FILTER_VALIDATE_INT,
+        [
+            'options' => [
+                'min_range' => 1
+            ]
+        ]
+    );
+
+    if ($idValido === false) {
+
+        unset($_SESSION['usuario']);
+
+        header('Location: ' . appUrl('login.php'));
+
+        exit;
+    }
+
+    // Evitar que páginas protegidas queden almacenadas
+    // en la caché normal del navegador
+    header(
+        'Cache-Control: no-store, no-cache, must-revalidate, max-age=0'
+    );
+
+    header('Pragma: no-cache');
+}
+
+// ==========================================
+// 5. VERIFICAR PERMISOS SEGÚN EL ROL
+// ==========================================
+
 function requireRole(string ...$rolesPermitidos): void {
 
+    // Verificar autenticación
     requireLogin();
 
-    $rolActual = strtolower(trim(
-        $_SESSION['usuario']['rol'] ?? ''
-    ));
+    // Obtener rol actual
+    $rolActual = $_SESSION['usuario']['rol'] ?? '';
 
-    $roles = array_map('strtolower', $rolesPermitidos);
+    if (!is_string($rolActual)) {
 
+        http_response_code(403);
+
+        exit('403 - Acceso denegado.');
+    }
+
+    $rolActual = strtolower(trim($rolActual));
+
+    // Normalizar roles permitidos
+    $roles = array_map(
+
+        fn($rol) => strtolower(trim($rol)),
+
+        $rolesPermitidos
+
+    );
+
+    // Verificar autorización
     if (!in_array($rolActual, $roles, true)) {
 
         http_response_code(403);
 
-        exit('No tienes permisos para acceder a este módulo.');
+        exit(
+            '<h1>403 - Acceso denegado</h1>
+            <p>No tienes permisos para acceder a este módulo.</p>'
+        );
     }
 }

@@ -1,7 +1,12 @@
-
 <?php
-session_start();
-require_once "../config/conexion.php";
+
+require_once __DIR__ . '/../config/auth.php';
+
+// SOLO ADMINISTRADOR
+requireRole('Administrador');
+
+// Conexión a la base de datos
+require_once __DIR__ . '/../config/conexion.php';
 
 if (empty($_SESSION['csrf'])) {
     $_SESSION['csrf'] = bin2hex(random_bytes(32));

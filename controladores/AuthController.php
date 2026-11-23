@@ -1,39 +1,71 @@
+
 <?php
+
+// ==========================================
+// 1. CONFIGURACIÓN Y CONEXIÓN
+// ==========================================
 
 require_once __DIR__ . '/../config/auth.php';
 require_once __DIR__ . '/../config/conexion.php';
 
-// Comprobar que venga del formulario
+// ==========================================
+// 2. VALIDAR MÉTODO HTTP
+// ==========================================
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+
     header('Location: ' . appUrl('login.php'));
     exit;
 }
 
-// Comprobar token de seguridad
-$csrf = $_POST['csrf'] ?? '';
-$token = $_SESSION['csrf_login'] ?? '';
+// ==========================================
+// 3. VALIDAR TOKEN CSRF
+// ==========================================
+
+$csrf = $_POST['csrf'] ?? null;
+$token = $_SESSION['csrf_login'] ?? null;
 
 if (
+    !is_string($csrf) ||
+    !is_string($token) ||
     $token === '' ||
-    $csrf === '' ||
     !hash_equals($token, $csrf)
 ) {
+
     header('Location: ' . appUrl('login.php?error=csrf'));
     exit;
 }
 
-// Recibir datos
-$usuario = trim($_POST['usuario'] ?? '');
-$password = $_POST['password'] ?? '';
+// ==========================================
+// 4. RECIBIR Y VALIDAR DATOS
+// ==========================================
 
-if ($usuario === '' || $password === '') {
+$usuario = $_POST['usuario'] ?? null;
+$password = $_POST['password'] ?? null;
+
+if (
+    !is_string($usuario) ||
+    !is_string($password)
+) {
+
     header('Location: ' . appUrl('login.php?error=1'));
     exit;
 }
 
+$usuario = trim($usuario);
+
+if ($usuario === '' || $password === '') {
+
+    header('Location: ' . appUrl('login.php?error=1'));
+    exit;
+}
+
+// ==========================================
+// 5. VERIFICAR CREDENCIALES
+// ==========================================
+
 try {
 
-    // Buscar usuario y rol
     $sql = "
         SELECT
             u.id_usuario,
@@ -56,29 +88,56 @@ try {
     ";
 
     $stmt = $conexion->prepare($sql);
+
     $stmt->execute([$usuario]);
 
     $datos = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Verificar contraseña
+    // ======================================
+    // 6. VERIFICAR CONTRASEÑA
+    // ======================================
+
     if (
         !$datos ||
+        !isset($datos['password_hash']) ||
+        !is_string($datos['password_hash']) ||
         !password_verify($password, $datos['password_hash'])
     ) {
+
         header('Location: ' . appUrl('login.php?error=1'));
         exit;
     }
 
-    // Aceptar únicamente los dos roles previstos
-    if (!in_array($datos['rol'], ['Administrador', 'Vendedor'], true)) {
+    // ======================================
+    // 7. VALIDAR ROL
+    // ======================================
+
+    $rolesPermitidos = [
+        'Administrador',
+        'Vendedor'
+    ];
+
+    if (
+        !in_array($datos['rol'], $rolesPermitidos, true)
+    ) {
+
         header('Location: ' . appUrl('login.php?error=1'));
         exit;
     }
 
-    // Renovar sesión
+    // ======================================
+    // 8. RENOVAR IDENTIFICADOR DE SESIÓN
+    // ======================================
+
     session_regenerate_id(true);
 
-    // Guardar información del usuario
+    // Limpiar datos anteriores de la sesión
+    $_SESSION = [];
+
+    // ======================================
+    // 9. GUARDAR INFORMACIÓN DEL USUARIO
+    // ======================================
+
     $_SESSION['usuario'] = [
 
         'id_usuario' => (int)$datos['id_usuario'],
@@ -93,15 +152,19 @@ try {
 
     ];
 
-    unset($_SESSION['csrf_login']);
+    // ======================================
+    // 10. REDIRECCIONAR AL DASHBOARD
+    // ======================================
 
-    // Redirigir al panel
     header('Location: ' . appUrl('dashboard.php'));
     exit;
 
 } catch (Throwable $e) {
 
-    error_log('Error de login: ' . $e->getMessage());
+    // Registrar error técnico
+    error_log(
+        'Error en AuthController: ' . $e->getMessage()
+    );
 
     header('Location: ' . appUrl('login.php?error=sistema'));
     exit;

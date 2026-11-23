@@ -1,17 +1,62 @@
+
 <?php
+
+// ==========================================
+// 1. CONFIGURACIÓN DE SESIÓN
+// ==========================================
 
 require_once __DIR__ . '/config/auth.php';
 
+// ==========================================
+// 2. REDIRIGIR USUARIOS AUTENTICADOS
+// ==========================================
+
 if (!empty($_SESSION['usuario']['id_usuario'])) {
+
     header('Location: ' . appUrl('dashboard.php'));
     exit;
 }
 
-if (empty($_SESSION['csrf_login'])) {
+// ==========================================
+// 3. GENERAR TOKEN CSRF
+// ==========================================
+
+if (
+    empty($_SESSION['csrf_login']) ||
+    !is_string($_SESSION['csrf_login'])
+) {
+
     $_SESSION['csrf_login'] = bin2hex(random_bytes(32));
 }
 
+// ==========================================
+// 4. RECIBIR MENSAJES
+// ==========================================
+
 $error = $_GET['error'] ?? '';
+
+if (!is_string($error)) {
+    $error = '';
+}
+
+$logout = (
+    isset($_GET['logout']) &&
+    is_string($_GET['logout']) &&
+    $_GET['logout'] === '1'
+);
+
+// ==========================================
+// 5. PROTEGER SALIDA HTML
+// ==========================================
+
+function e($valor): string {
+
+    return htmlspecialchars(
+        (string)$valor,
+        ENT_QUOTES,
+        'UTF-8'
+    );
+}
 
 ?>
 
@@ -21,12 +66,15 @@ $error = $_GET['error'] ?? '';
 <head>
 
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Login | CheckPoint Store</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet">
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
 
     <style>
 
@@ -111,43 +159,58 @@ $error = $_GET['error'] ?? '';
         Sistema de inventario y ventas
     </p>
 
+    <!-- MENSAJES DE ERROR -->
+
     <?php if ($error === '1'): ?>
 
-        <div class="alert alert-danger">
+        <div class="alert alert-danger" role="alert">
             Usuario o contraseña incorrectos.
         </div>
 
     <?php elseif ($error === 'csrf'): ?>
 
-        <div class="alert alert-warning">
+        <div class="alert alert-warning" role="alert">
             El formulario venció. Intenta nuevamente.
         </div>
 
     <?php elseif ($error === 'sistema'): ?>
 
-        <div class="alert alert-danger">
+        <div class="alert alert-danger" role="alert">
             Error al conectar o procesar el inicio de sesión.
         </div>
 
     <?php endif; ?>
 
-    <?php if (isset($_GET['logout'])): ?>
+    <!-- MENSAJE DE CIERRE DE SESIÓN -->
 
-        <div class="alert alert-success">
+    <?php if ($logout): ?>
+
+        <div class="alert alert-success" role="alert">
             Sesión cerrada correctamente.
         </div>
 
     <?php endif; ?>
 
-    <form action="<?= htmlspecialchars(appUrl('controladores/AuthController.php')) ?>"
-    method="POST">
+    <!-- FORMULARIO DE LOGIN -->
 
-        <input type="hidden" name="csrf"
-        value="<?= htmlspecialchars($_SESSION['csrf_login']) ?>">
+    <form
+        action="<?= e(appUrl('controladores/AuthController.php')) ?>"
+        method="POST"
+    >
+
+        <!-- TOKEN CSRF -->
+
+        <input
+            type="hidden"
+            name="csrf"
+            value="<?= e($_SESSION['csrf_login']) ?>"
+        >
 
         <div class="mb-3">
 
-            <label class="form-label">Usuario</label>
+            <label class="form-label">
+                Usuario
+            </label>
 
             <input
                 type="text"
@@ -163,7 +226,9 @@ $error = $_GET['error'] ?? '';
 
         <div class="mb-4">
 
-            <label class="form-label">Contraseña</label>
+            <label class="form-label">
+                Contraseña
+            </label>
 
             <input
                 type="password"
@@ -176,7 +241,10 @@ $error = $_GET['error'] ?? '';
 
         </div>
 
-        <button type="submit" class="btn btn-login w-100">
+        <button
+            type="submit"
+            class="btn btn-login w-100"
+        >
             Iniciar sesión
         </button>
 
