@@ -25,12 +25,12 @@ function appBasePath(): string {
     ];
 
     if (in_array(basename($base), $carpetas, true)) {
-
         $base = rtrim(dirname($base), '/');
     }
 
     return ($base === '/' || $base === '.') ? '' : $base;
 }
+
 
 // ==========================================
 // 2. GENERAR RUTAS DEL SISTEMA
@@ -40,6 +40,7 @@ function appUrl(string $ruta = ''): string {
 
     return appBasePath() . '/' . ltrim($ruta, '/');
 }
+
 
 // ==========================================
 // 3. CONFIGURACIÓN SEGURA DE SESIÓN
@@ -78,25 +79,137 @@ if (session_status() === PHP_SESSION_NONE) {
 
     // Configurar parámetros de la cookie
     session_set_cookie_params([
-
         'lifetime' => 0,
-
         'path' => appBasePath() . '/',
-
         'secure' => $esHttps,
-
         'httponly' => true,
-
         'samesite' => 'Lax'
-
     ]);
 
     // Iniciar sesión
     session_start();
 }
 
+
 // ==========================================
-// 4. VERIFICAR INICIO DE SESIÓN
+// 4. SISTEMA DE MENSAJES TEMPORALES (FLASH)
+// ==========================================
+
+/**
+ * Guarda un mensaje para mostrarlo una sola vez.
+ *
+ * Tipos permitidos:
+ * success, danger, warning e info.
+ */
+function flashSet(string $tipo, string $mensaje): void {
+
+    $tiposPermitidos = [
+        'success',
+        'danger',
+        'warning',
+        'info'
+    ];
+
+    if (!in_array($tipo, $tiposPermitidos, true)) {
+        $tipo = 'info';
+    }
+
+    $_SESSION['_flash_message'] = [
+        'type' => $tipo,
+        'message' => $mensaje
+    ];
+}
+
+
+/**
+ * Muestra el mensaje temporal y lo elimina
+ * de la sesión para evitar que reaparezca
+ * al actualizar la página.
+ */
+function flashRender(): string {
+
+    if (
+        empty($_SESSION['_flash_message']) ||
+        !is_array($_SESSION['_flash_message'])
+    ) {
+        return '';
+    }
+
+    // Recuperar mensaje
+    $flash = $_SESSION['_flash_message'];
+
+    // Eliminarlo inmediatamente de la sesión
+    unset($_SESSION['_flash_message']);
+
+    $tiposPermitidos = [
+        'success',
+        'danger',
+        'warning',
+        'info'
+    ];
+
+    $tipo = $flash['type'] ?? 'info';
+    $mensaje = $flash['message'] ?? '';
+
+    if (
+        !in_array($tipo, $tiposPermitidos, true) ||
+        !is_string($mensaje) ||
+        $mensaje === ''
+    ) {
+        return '';
+    }
+
+    // Identificador único
+    $id = 'flash-' . bin2hex(random_bytes(4));
+
+    // Protección del contenido
+    $mensajeSeguro = htmlspecialchars(
+        $mensaje,
+        ENT_QUOTES,
+        'UTF-8'
+    );
+
+    // Construir alerta Bootstrap
+    return
+        '<div id="' . $id . '" class="alert alert-' . $tipo .
+        ' alert-dismissible fade show shadow-sm" role="alert">' .
+
+        $mensajeSeguro .
+
+        '<button type="button" class="btn-close" aria-label="Cerrar" ' .
+        'onclick="this.parentNode.remove()"></button>' .
+
+        '</div>' .
+
+        '<script>
+        (function () {
+
+            var alerta = document.getElementById(' .
+                json_encode($id) . ');
+
+            if (!alerta) return;
+
+            window.setTimeout(function () {
+
+                alerta.classList.remove("show");
+
+                window.setTimeout(function () {
+
+                    if (alerta && alerta.parentNode) {
+                        alerta.parentNode.removeChild(alerta);
+                    }
+
+                }, 250);
+
+            }, 4500);
+
+        })();
+        </script>';
+}
+
+
+// ==========================================
+// 5. VERIFICAR INICIO DE SESIÓN
 // ==========================================
 
 function requireLogin(): void {
@@ -136,8 +249,9 @@ function requireLogin(): void {
     header('Pragma: no-cache');
 }
 
+
 // ==========================================
-// 5. VERIFICAR PERMISOS SEGÚN EL ROL
+// 6. VERIFICAR PERMISOS SEGÚN EL ROL
 // ==========================================
 
 function requireRole(string ...$rolesPermitidos): void {
@@ -159,11 +273,8 @@ function requireRole(string ...$rolesPermitidos): void {
 
     // Normalizar roles permitidos
     $roles = array_map(
-
         fn($rol) => strtolower(trim($rol)),
-
         $rolesPermitidos
-
     );
 
     // Verificar autorización
