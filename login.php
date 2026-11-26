@@ -1,4 +1,3 @@
-
 <?php
 
 // ==========================================
@@ -12,7 +11,6 @@ require_once __DIR__ . '/config/auth.php';
 // ==========================================
 
 if (!empty($_SESSION['usuario']['id_usuario'])) {
-
     header('Location: ' . appUrl('dashboard.php'));
     exit;
 }
@@ -25,7 +23,6 @@ if (
     empty($_SESSION['csrf_login']) ||
     !is_string($_SESSION['csrf_login'])
 ) {
-
     $_SESSION['csrf_login'] = bin2hex(random_bytes(32));
 }
 
@@ -50,7 +47,6 @@ $logout = (
 // ==========================================
 
 function e($valor): string {
-
     return htmlspecialchars(
         (string)$valor,
         ENT_QUOTES,
@@ -66,7 +62,6 @@ function e($valor): string {
 <head>
 
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Login | CheckPoint Store</title>
@@ -85,6 +80,7 @@ function e($valor): string {
             display: flex;
             align-items: center;
             justify-content: center;
+            margin: 0;
         }
 
         .login-card {
@@ -98,16 +94,19 @@ function e($valor): string {
         }
 
         .logo {
-            background: #FF2E93;
-            width: 65px;
-            height: 65px;
+            width: 96px;
+            height: 96px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: auto;
-            border-radius: 17px;
-            font-size: 27px;
-            font-weight: bold;
+            margin: 0 auto 12px auto;
+        }
+
+        .logo img {
+            width: 96px;
+            height: 96px;
+            object-fit: contain;
+            display: block;
         }
 
         .form-control {
@@ -141,120 +140,134 @@ function e($valor): string {
             color: white;
         }
 
+        @media (max-width: 576px) {
+            .login-card {
+                margin: 16px;
+                padding: 28px 22px;
+            }
+
+            .logo {
+                width: 82px;
+                height: 82px;
+            }
+
+            .logo img {
+                width: 82px;
+                height: 82px;
+            }
+        }
+
     </style>
 
 </head>
 
 <body>
 
-<div class="login-card">
+    <div class="login-card">
 
-    <div class="logo mb-3">CP</div>
-
-    <h3 class="text-center fw-bold">
-        CheckPoint Store
-    </h3>
-
-    <p class="text-center text-secondary mb-4">
-        Sistema de inventario y ventas
-    </p>
-
-    <!-- MENSAJES DE ERROR -->
-
-    <?php if ($error === '1'): ?>
-
-        <div class="alert alert-danger" role="alert">
-            Usuario o contraseña incorrectos.
+        <div class="logo">
+            <img
+                src="<?= e(appUrl('assets/img/checkpoint-icono-512.png')) ?>"
+                alt="CheckPoint Store"
+            >
         </div>
 
-    <?php elseif ($error === 'csrf'): ?>
+        <h3 class="text-center fw-bold">
+            CheckPoint Store
+        </h3>
 
-        <div class="alert alert-warning" role="alert">
-            El formulario venció. Intenta nuevamente.
-        </div>
+        <p class="text-center text-secondary mb-4">
+            Sistema de inventario y ventas
+        </p>
 
-    <?php elseif ($error === 'sistema'): ?>
+        <!-- MENSAJES DE ERROR -->
+        <?php if ($error === '1'): ?>
 
-        <div class="alert alert-danger" role="alert">
-            Error al conectar o procesar el inicio de sesión.
-        </div>
+            <div class="alert alert-danger" role="alert">
+                Usuario o contraseña incorrectos.
+            </div>
 
-    <?php endif; ?>
+        <?php elseif ($error === 'csrf'): ?>
 
-    <!-- MENSAJE DE CIERRE DE SESIÓN -->
+            <div class="alert alert-warning" role="alert">
+                El formulario venció. Intenta nuevamente.
+            </div>
 
-    <?php if ($logout): ?>
+        <?php elseif ($error === 'sistema'): ?>
 
-        <div class="alert alert-success" role="alert">
-            Sesión cerrada correctamente.
-        </div>
+            <div class="alert alert-danger" role="alert">
+                Error al conectar o procesar el inicio de sesión.
+            </div>
 
-    <?php endif; ?>
+        <?php endif; ?>
 
-    <!-- FORMULARIO DE LOGIN -->
+        <!-- MENSAJE DE CIERRE DE SESIÓN -->
+        <?php if ($logout): ?>
 
-    <form
-        action="<?= e(appUrl('controladores/AuthController.php')) ?>"
-        method="POST"
-    >
+            <div class="alert alert-success" role="alert">
+                Sesión cerrada correctamente.
+            </div>
 
-        <!-- TOKEN CSRF -->
+        <?php endif; ?>
 
-        <input
-            type="hidden"
-            name="csrf"
-            value="<?= e($_SESSION['csrf_login']) ?>"
+        <!-- FORMULARIO DE LOGIN -->
+        <form
+            action="<?= e(appUrl('controladores/AuthController.php')) ?>"
+            method="POST"
         >
 
-        <div class="mb-3">
-
-            <label class="form-label">
-                Usuario
-            </label>
-
+            <!-- TOKEN CSRF -->
             <input
-                type="text"
-                name="usuario"
-                class="form-control"
-                placeholder="Ingresa tu usuario"
-                maxlength="50"
-                autocomplete="username"
-                required
+                type="hidden"
+                name="csrf"
+                value="<?= e($_SESSION['csrf_login']) ?>"
             >
 
-        </div>
+            <div class="mb-3">
+                <label class="form-label">
+                    Usuario
+                </label>
 
-        <div class="mb-4">
+                <input
+                    type="text"
+                    name="usuario"
+                    class="form-control"
+                    placeholder="Ingresa tu usuario"
+                    maxlength="50"
+                    autocomplete="username"
+                    required
+                >
+            </div>
 
-            <label class="form-label">
-                Contraseña
-            </label>
+            <div class="mb-4">
+                <label class="form-label">
+                    Contraseña
+                </label>
 
-            <input
-                type="password"
-                name="password"
-                class="form-control"
-                placeholder="Ingresa tu contraseña"
-                autocomplete="current-password"
-                required
+                <input
+                    type="password"
+                    name="password"
+                    class="form-control"
+                    placeholder="Ingresa tu contraseña"
+                    autocomplete="current-password"
+                    required
+                >
+            </div>
+
+            <button
+                type="submit"
+                class="btn btn-login w-100"
             >
+                Iniciar sesión
+            </button>
 
-        </div>
+        </form>
 
-        <button
-            type="submit"
-            class="btn btn-login w-100"
-        >
-            Iniciar sesión
-        </button>
+        <p class="text-center text-secondary mt-4 mb-0 small">
+            © 2026 CheckPoint Store
+        </p>
 
-    </form>
-
-    <p class="text-center text-secondary mt-4 mb-0 small">
-        © 2026 CheckPoint Store
-    </p>
-
-</div>
+    </div>
 
 </body>
 </html>

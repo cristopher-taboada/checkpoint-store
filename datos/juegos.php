@@ -7,21 +7,27 @@
 return [
 
     [
-        'titulo' => 'Grand Theft Auto VI',
-        'imagen' => 'gta6.jpg',
+        'titulo' => 'Grand Theft Auto V',
+        'imagen' => 'gta-v.jpg',
         'precio' => 'Bs. 520',
-        'plataformas' => ['PlayStation 5', 'Xbox Series X|S'],
+        'plataformas' => [
+            'PC',
+            'PlayStation 5',
+            'PlayStation 4',
+            'Xbox Series X|S',
+            'Xbox One'
+        ],
         'requisitos' => [
-            'Versión' => 'Solo consola',
-            'Almacenamiento' => 'Por confirmar'
+            'Sistema' => 'Windows 10 de 64 bits',
+            'Almacenamiento' => '105 GB'
         ],
         'youtube' => '',
-        'descripcion' => 'Lo nuevo de Rockstar Games, ambientado en el estado de Leonida.'
+        'descripcion' => 'Explora Los Santos en esta aventura de mundo abierto de Rockstar Games.'
     ],
 
     [
         'titulo' => 'EA Sports FC 27',
-        'imagen' => 'fc27.jpg',
+        'imagen' => 'fc-27.avif',
         'precio' => 'Bs. 450',
         'plataformas' => [
             'PlayStation 5',
@@ -42,9 +48,13 @@ return [
 
     [
         'titulo' => 'Cyberpunk 2077',
-        'imagen' => 'cyberpunk.jpg',
+        'imagen' => 'cyberpunk.webp',
         'precio' => 'Bs. 280',
-        'plataformas' => ['PC', 'PlayStation 5', 'Xbox Series X|S'],
+        'plataformas' => [
+            'PC',
+            'PlayStation 5',
+            'Xbox Series X|S'
+        ],
         'requisitos' => [
             'Sistema' => 'Windows 10 de 64 bits',
             'Procesador' => 'Core i7-6700 / Ryzen 5 1600',
@@ -58,9 +68,13 @@ return [
 
     [
         'titulo' => 'Elden Ring',
-        'imagen' => 'eldenring.jpg',
+        'imagen' => 'elden-ring.jpg',
         'precio' => 'Bs. 310',
-        'plataformas' => ['PC', 'PlayStation 5', 'Xbox Series X|S'],
+        'plataformas' => [
+            'PC',
+            'PlayStation 5',
+            'Xbox Series X|S'
+        ],
         'requisitos' => [
             'Sistema' => 'Windows 10',
             'Procesador' => 'Core i5-8400 / Ryzen 3 3300X',
@@ -74,50 +88,18 @@ return [
 
     [
         'titulo' => 'God of War Ragnarök',
-        'imagen' => 'godofwar.jpg',
+        'imagen' => 'god-of-war.webp',
         'precio' => 'Bs. 350',
-        'plataformas' => ['PlayStation 5', 'PlayStation 4', 'PC'],
+        'plataformas' => [
+            'PlayStation 5',
+            'PlayStation 4',
+            'PC'
+        ],
         'requisitos' => [
             'Requisitos' => 'Consultar ficha oficial'
         ],
         'youtube' => '',
         'descripcion' => 'Kratos y Atreus enfrentan el fin del mundo nórdico.'
-    ],
-
-    [
-        'titulo' => 'Black Myth: Wukong',
-        'imagen' => 'wukong.jpg',
-        'precio' => 'Bs. 300',
-        'plataformas' => ['PC', 'PlayStation 5', 'Xbox Series X|S'],
-        'requisitos' => [
-            'Requisitos' => 'Consultar ficha oficial'
-        ],
-        'youtube' => '',
-        'descripcion' => 'Acción y mitología china inspirada en Viaje al Oeste.'
-    ],
-
-    [
-        'titulo' => 'The Legend of Zelda: Breath of the Wild',
-        'imagen' => 'zelda.jpg',
-        'precio' => 'Bs. 380',
-        'plataformas' => ['Switch', 'Switch 2'],
-        'requisitos' => [
-            'Requisitos' => 'Consultar ficha oficial'
-        ],
-        'youtube' => '',
-        'descripcion' => 'Aventura de mundo abierto en el reino de Hyrule.'
-    ],
-
-    [
-        'titulo' => 'Mario Kart World',
-        'imagen' => 'mariokart.jpg',
-        'precio' => 'Bs. 420',
-        'plataformas' => ['Switch 2'],
-        'requisitos' => [
-            'Requisitos' => 'Consultar ficha oficial'
-        ],
-        'youtube' => '',
-        'descripcion' => 'Carreras de Nintendo en un mundo abierto y conectado.'
     ]
 
 ];

@@ -69,9 +69,19 @@ $tituloDestacado = htmlspecialchars(
 
     <header class="barra">
 
-        <span class="marca">
-            🎮 CHECKPOINT STORE
-        </span>
+        <!-- LOGO PEQUEÑO -->
+        <a href="inicio.php"
+           class="logo-marca"
+           aria-label="CheckPoint Store - Inicio">
+
+            <img
+                src="assets/img/checkpoint-icono-512.png"
+                alt="CheckPoint Store"
+                width="36"
+                height="36"
+            >
+
+        </a>
 
         <!-- FILTROS DE VIDEOJUEGOS -->
 
@@ -105,7 +115,7 @@ $tituloDestacado = htmlspecialchars(
 
         </nav>
 
-        <!-- ACCESO AL LOGIN ORIGINAL -->
+        <!-- ACCESO AL LOGIN -->
 
         <div class="login-wrap">
 
@@ -113,7 +123,7 @@ $tituloDestacado = htmlspecialchars(
                class="btn-login"
                style="display:inline-block;text-decoration:none;">
 
-                👤 Iniciar sesión
+                Iniciar sesión
 
             </a>
 
@@ -128,9 +138,7 @@ $tituloDestacado = htmlspecialchars(
 
     <main class="tienda">
 
-        <!-- =================================
-             CATÁLOGO Y CARRUSEL 3D
-        ================================== -->
+        <!-- CATÁLOGO Y CARRUSEL 3D -->
 
         <section class="banner"
                  aria-labelledby="tituloCatalogo">
@@ -145,8 +153,7 @@ $tituloDestacado = htmlspecialchars(
 
                 <div class="anillo" id="anillo">
 
-                    <!-- JavaScript generará aquí
-                         las tarjetas de videojuegos -->
+                    <!-- JavaScript genera las tarjetas -->
 
                 </div>
 
@@ -170,10 +177,9 @@ $tituloDestacado = htmlspecialchars(
 
                 </button>
 
-                <!-- MENSAJE CUANDO NO HAY RESULTADOS -->
+                <!-- MENSAJE SIN RESULTADOS -->
 
-                <p class="vacio"
-                   role="status">
+                <p class="vacio" role="status">
 
                     No encontramos videojuegos
                     con esa plataforma.
@@ -182,8 +188,7 @@ $tituloDestacado = htmlspecialchars(
 
             </div>
 
-
-            <!-- INFORMACIÓN DEL VIDEOJUEGO SELECCIONADO -->
+            <!-- INFORMACIÓN DEL JUEGO SELECCIONADO -->
 
             <div class="info">
 
@@ -191,13 +196,9 @@ $tituloDestacado = htmlspecialchars(
                     Selecciona un videojuego
                 </h3>
 
-                <span class="precio"
-                      id="precioJuego">
+                <span class="precio" id="precioJuego"></span>
 
-                </span>
-
-                <button type="button"
-                        class="btn-detalles">
+                <button type="button" class="btn-detalles">
 
                     Ver detalles
 
@@ -208,9 +209,7 @@ $tituloDestacado = htmlspecialchars(
         </section>
 
 
-        <!-- =================================
-             PANEL PROMOCIONAL
-        ================================== -->
+        <!-- PANEL PROMOCIONAL -->
 
         <aside class="promo">
 
@@ -278,21 +277,15 @@ $tituloDestacado = htmlspecialchars(
 
             </button>
 
-
             <!-- TÍTULO DEL VIDEOJUEGO -->
 
             <h2 id="mTitulo">
                 Videojuego
             </h2>
 
-
             <!-- DESCRIPCIÓN -->
 
-            <p class="desc"
-               id="mDescripcion">
-
-            </p>
-
+            <p class="desc" id="mDescripcion"></p>
 
             <!-- PRECIO -->
 
@@ -302,12 +295,9 @@ $tituloDestacado = htmlspecialchars(
                     Precio
                 </span>
 
-                <strong id="mPrecio">
-
-                </strong>
+                <strong id="mPrecio"></strong>
 
             </div>
-
 
             <!-- PLATAFORMAS -->
 
@@ -317,13 +307,9 @@ $tituloDestacado = htmlspecialchars(
                     Plataformas
                 </span>
 
-                <div class="chips"
-                     id="mPlataformas">
-
-                </div>
+                <div class="chips" id="mPlataformas"></div>
 
             </div>
-
 
             <!-- REQUISITOS -->
 
@@ -331,17 +317,13 @@ $tituloDestacado = htmlspecialchars(
                 Información técnica
             </h3>
 
-            <table id="mReq">
-
-            </table>
-
+            <table id="mReq"></table>
 
             <!-- TRÁILER -->
 
             <div class="trailer"
                  id="trailer"
                  hidden>
-
             </div>
 
         </div>
